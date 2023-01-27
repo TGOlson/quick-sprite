@@ -33,7 +33,7 @@ export type Sprite = {
 
 export const DEFAULT_OPTIONS: Options = {
   fillMode: FillMode.Vertical,
-  maxWidth: 3072, // only used with FillMode.Row FillMode; 3072 = max canvas width for some browsers
+  maxWidth: 3072, // only used with FillMode.Row; 3072 = max canvas width for some browsers
   dedupe: false,
   padding: 0,
   transform: (_x, y) => y,

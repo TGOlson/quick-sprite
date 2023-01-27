@@ -12,7 +12,7 @@ You may also like this library if you are already using [`Jimp`](https://www.npm
 npm install quick-sprite --save
 ```
 
-_Note: the only external dependency for this library is [`Jimp`](https://www.npmjs.com/package/jimp), which in turn has zero native dependencies. Most image processing calls are passed through to `Jimp`, and the final return type includes a `Jimp` instance._
+Note: the only external dependency for this library is `Jimp`, which in turn has zero native dependencies. Most image processing calls are passed through to `Jimp`, and the final return type includes a `Jimp` instance.
 
 
 ### usage 
@@ -41,7 +41,7 @@ Call to `createSprite` can receive `Options` as a second arguement. Default opti
 ```ts
 const DEFAULT_OPTIONS: Options = {
   fillMode: FillMode.Vertical,
-  maxWidth: 3072, // only used with FillMode.Row FillMode; 3072 = max canvas width for some browsers
+  maxWidth: 3072, // only used with FillMode.Row; 3072 = max canvas width for some browsers
   dedupe: false,
   padding: 0,
   transform: (_x, y) => y,
@@ -84,6 +84,14 @@ type Sprite = {
   image: Jimp,
 }
 ```
+
+### advanced usage
+
+Most advanced usage will involve using the `transform` options, or modifying the resulting `Jimp` instance. 
+
+For example, images can be resized by using transform: `transform: (_key, image) => image.resize(width, height)`. Or images can be made black and white by using the resulting `Sprite.image`: `createSprite(...).then(({image}) => image.greyscale())`;
+
+Use [`Jimp`](https://www.npmjs.com/package/jimp) docs to reference all possible API calls. 
 
 ### development
 
