@@ -4,17 +4,20 @@ Small utility to quicky generate sprites from multiple images.
 
 There are a lot of options for building Sprites! Use this library if you want a non-opinionated solution that is easy to call programaticaly in a `node` context (a lot of other libraries assume build pipelines or access to Browser types). 
 
-You may also like this library if you are already using `Jimp` to handle image processing.
+You may also like this library if you are already using [`Jimp`](https://www.npmjs.com/package/jimp) to handle image processing.
 
-### usage
-
-Install package
+### setup
 
 ```
 npm install quick-sprite --save
 ```
 
-Example:
+_Note: the only external dependency for this library is [`Jimp`](https://www.npmjs.com/package/jimp), which in turn has zero native dependencies. Most image processing calls are passed through to `Jimp`, and the final return type includes a `Jimp` instance._
+
+
+### usage 
+
+`createSprite` is the only exported method from this library. Generate sprite images by providing this method a list of input sources and an optional set of options. 
 
 ```ts
 import {createSprite} from 'quick-sprite';
@@ -31,7 +34,21 @@ createSprite(sources).then(({image, mapping}: Sprite) => {
 });
 ```
 
-Types
+### options
+
+Call to `createSprite` can receive `Options` as a second arguement. Default options will work for most use cases, but can be modified for additional flexibility. 
+
+```ts
+const DEFAULT_OPTIONS: Options = {
+  fillMode: FillMode.Vertical,
+  maxWidth: 3072, // only used with FillMode.Row FillMode; 3072 = max canvas width for some browsers
+  dedupe: false,
+  padding: 0,
+  transform: (_x, y) => y,
+}
+```
+
+### types
 
 ```ts
 function createSprite(sources: ImageSource[], partialOptions: Partial<Options>): Promise<Sprite>
@@ -67,8 +84,6 @@ type Sprite = {
   image: Jimp,
 }
 ```
-
-_Note: the only external dependency for this library is [`Jimp`](https://www.npmjs.com/package/jimp), which in turn has zero native dependencies. Most image processing calls are passed through to `Jimp`, and the final return type includes a `Jimp` instance._
 
 ### development
 
