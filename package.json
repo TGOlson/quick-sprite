@@ -1,6 +1,6 @@
 {
   "name": "quick-sprite",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Small utility to quicky generate sprites from multiple images.",
   "main": "./index.js",
   "types": "./index.d.ts",
