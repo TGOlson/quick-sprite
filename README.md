@@ -2,7 +2,9 @@
 
 Small utility to quicky generate sprites from multiple images.
 
-There are a lot of options for building Sprites! Use this library if you want a non-opinionation solution that is easy to call programaticaly in a `node` context (a lot of other libraries assume build pipelines or access to Browser types). You may also like this library if you are already using `Jimp` to handle image processing.
+There are a lot of options for building Sprites! Use this library if you want a non-opinionated solution that is easy to call programaticaly in a `node` context (a lot of other libraries assume build pipelines or access to Browser types). 
+
+You may also like this library if you are already using `Jimp` to handle image processing.
 
 ### usage
 
@@ -14,7 +16,7 @@ npm install quick-sprite --save
 
 Example:
 
-```js
+```ts
 import {createSprite} from 'quick-sprite';
 
 const sources: ImageSource[] = [
@@ -31,7 +33,7 @@ createSprite(sources).then(({image, mapping}: Sprite) => {
 
 Types
 
-```js
+```ts
 function createSprite(sources: ImageSource[], partialOptions: Partial<Options>): Promise<Sprite>
 
 type ImageSource 
