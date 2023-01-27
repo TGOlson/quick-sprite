@@ -1,27 +1,30 @@
-# sprite-generator
+# quick-sprite
 
-Small utility to quicky generate sprites from multiple images. 
+Small utility to quicky generate sprites from multiple images.
+
+There are a lot of options for building Sprites! Use this library if you want a non-opinionation solution that is easy to call programaticaly in a `node` context (a lot of other libraries assume build pipelines or access to Browser types). You may also like this library if you are already using `Jimp` to handle image processing.
 
 ### usage
 
-This library exports a single function: `createSprite`. This function takes in an array of sources along with a set of options, and returns a promise of a `Sprite`. For the majority of cases the default options will work fine. 
+Install package
 
-Note: this function does not save the result by default. Saving or other image processing can be done using the returned [`Jimp`](https://www.npmjs.com/package/jimp) instance. 
-
-```js
-function createSprite(sources: ImageSource[], partialOptions: Partial<Options>): Promise<Sprite>
+```
+npm install quick-sprite --save
 ```
 
-Example of common usage:
+Example:
 
 ```js
-const sources = [
+import {createSprite} from 'quick-sprite';
+
+const sources: ImageSource[] = [
   {key: 'image1', path: '<file-path-1>'},
   {key: 'image2', path: '<file-path-2>'},
   {key: 'image3', path: '<file-path-3>'},
 ];
 
-createSprite(sources).then(({image, mapping}) => {
+createSprite(sources).then(({image, mapping}: Sprite) => {
+  // do something with `mapping`
   image.write('<output-path>');
 });
 ```
@@ -29,7 +32,18 @@ createSprite(sources).then(({image, mapping}) => {
 Types
 
 ```js
-type ImageSource = {key: string, path: string} | {key: string, image: Jimp} | {key: string, buffer: Buffer};
+function createSprite(sources: ImageSource[], partialOptions: Partial<Options>): Promise<Sprite>
+
+type ImageSource 
+  = {key: string, path: string} 
+  | {key: string, image: Jimp} 
+  | {key: string, buffer: Buffer};
+
+enum FillMode {
+  Vertical = 'vertical',
+  Horizontal = 'horizontal', 
+  Row = 'row'
+}
 
 type Options = {
   fillMode: FillMode;
@@ -37,12 +51,6 @@ type Options = {
   dedupe: boolean;
   padding: number;
   transform: (key: string, image: Jimp) => Jimp,
-}
-
-enum FillMode {
-  VERTICAL,
-  HORIZONTAL,
-  ROW
 }
 
 type Sprite = {
@@ -57,6 +65,8 @@ type Sprite = {
   image: Jimp,
 }
 ```
+
+_Note: the only external dependency for this library is [`Jimp`](https://www.npmjs.com/package/jimp), which in turn has zero native dependencies. Most image processing calls are passed through to `Jimp`, and the final return type includes a `Jimp` instance._
 
 ### development
 

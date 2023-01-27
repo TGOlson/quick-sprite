@@ -2,8 +2,7 @@ import assert from 'assert';
 import Jimp from 'jimp/es';
 import path from 'path';
 
-import {createSprite} from '../src';
-import { FillMode } from '../src/types';
+import {createSprite, FillMode} from '../src';
 import { assertImagesEqual, testAsync } from './utils';
 
 const p = (x: string): string => path.resolve(__dirname, x);
@@ -35,7 +34,7 @@ testAsync('Generator can create vertical sprites', async () => {
 });
 
 testAsync('Generator can create horizontal sprites', async () => {
-  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.HORIZONTAL});
+  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.Horizontal});
 
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -49,7 +48,7 @@ testAsync('Generator can create horizontal sprites', async () => {
 });
 
 testAsync('Generator can create row sprites', async () => {
-  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.ROW, maxWidth: 300});
+  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.Row, maxWidth: 300});
   
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -64,7 +63,7 @@ testAsync('Generator can create row sprites', async () => {
 
 testAsync('Generator can create row sprites with different size images', async () => {
   const paths = [ATL, BOS, MIN_SMALL, CHA, CHI, MIN_LARGE];
-  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.ROW, maxWidth: 300});
+  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.Row, maxWidth: 300});
   
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -92,7 +91,7 @@ testAsync('Generator can dedupe input images', async () => {
     {...ATL, key: 'ATL_3'}, 
   ];
 
-  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.ROW, maxWidth: 300, dedupe: true});
+  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.Row, maxWidth: 300, dedupe: true});
 
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -134,7 +133,7 @@ testAsync('Generator can add padding', async () => {
     {key: 'red_3', path: imagePath('red.png')},
     {key: 'red_4', path: imagePath('red.png')},
   ]
-  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.ROW, maxWidth: 300, padding: 20});
+  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.Row, maxWidth: 300, padding: 20});
 
   assert.deepEqual(mapping, {
     red_1: { x: 20, y: 20, width: 100, height: 100 },
@@ -154,7 +153,7 @@ testAsync('Generator will resize if image is greater than max width', async () =
     {key: 'red_3', path: imagePath('red.png')},
     {key: 'red_4', path: imagePath('red.png')},
   ]
-  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.ROW, maxWidth: 50, padding: 10});
+  const {image, mapping} = await createSprite(paths, {fillMode: FillMode.Row, maxWidth: 50, padding: 10});
 
   assert.deepEqual(mapping, {
     red_1: { x: 10, y: 10, width: 30, height: 30 },
