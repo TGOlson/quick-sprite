@@ -9,7 +9,6 @@ export const DEFAULT_OPTIONS: Options = {
   transform: (_x, y) => y,
 }
 
-
 const read = (source: ImageSource): Promise<Jimp> => {
   // kind of weird type refinement required because of overloaded Jimp.read function
   if ('path' in source) {
@@ -29,7 +28,6 @@ type Spec = {
 };
 
 const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spec[] => {
-
   const specs: Spec[] = [];
   const dupeHash: {[key: string]: Spec} = {} // only used of options.dedupe = true
   let offsetY = options.padding;
@@ -38,6 +36,7 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
 
   images.forEach(({image: baseImage, key}, i) => {
     const image = options.transform(key, baseImage);
+    
     if (image.getWidth() + (options.padding * 2) > options.maxWidth) {
       image.resize(options.maxWidth - (options.padding * 2), Jimp.AUTO);
     }

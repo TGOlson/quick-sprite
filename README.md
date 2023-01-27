@@ -1,10 +1,12 @@
-* sprite-generator
+# sprite-generator
 
 Small utility to quicky generate sprites from multiple images. 
 
-*** usage
+### usage
 
-*** development
+// TODO
+
+### development
 
 Install deps
 
@@ -16,4 +18,14 @@ Compile and typecheck
 
 ```
 npm run build
+
+// or
+
+npm run watch
+```
+
+Run test
+
+```
+npm run test
 ```
