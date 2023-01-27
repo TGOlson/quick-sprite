@@ -5,9 +5,6 @@ export type ImageSource
   | {key: string, image: Jimp} 
   | {key: string, buffer: Buffer};
 
-export type Coordinates = {x: number, y: number};
-export type Dimensions = {width: number, height: number};
-
 export enum FillMode {
   VERTICAL,
   HORIZONTAL,
