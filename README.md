@@ -4,7 +4,9 @@ Small utility to quicky generate sprites from multiple images.
 
 ### usage
 
-This library exports a single function: `createSprite`. This function takes in an array of sources, and returns a promise of a `Sprite`. For the majority of cases the default options will work fine. Note: this function does not save the result by default. Saving or other image processing can be done using the returned [`Jimp`](https://www.npmjs.com/package/jimp) instance. 
+This library exports a single function: `createSprite`. This function takes in an array of sources along with a set of options, and returns a promise of a `Sprite`. For the majority of cases the default options will work fine. 
+
+Note: this function does not save the result by default. Saving or other image processing can be done using the returned [`Jimp`](https://www.npmjs.com/package/jimp) instance. 
 
 ```js
 function createSprite(sources: ImageSource[], partialOptions: Partial<Options>): Promise<Sprite>
