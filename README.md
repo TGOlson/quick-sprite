@@ -89,13 +89,13 @@ type Sprite = {
 
 Most advanced usage will involve using the `transform` options, or modifying the resulting `Jimp` instance. 
 
-For example, images can be resized by using transform: 
+For example, images can be resized by using `Options.transform`: 
 
 ```
 transform: (_key, image) => image.resize(width, height)
 ```
 
-Or images can be made black and white by using the resulting `Sprite.image`: 
+Or images can be made black and white by modifying the resulting `Sprite.image`: 
 
 ```
 createSprite(...).then(({image}) => image.greyscale())
