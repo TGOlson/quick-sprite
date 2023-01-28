@@ -27,7 +27,7 @@ export type Sprite = {
 
 export const DEFAULT_OPTIONS: Options = {
   fillMode: 'vertical',
-  maxWidth: 3072, // only used with 'row'; 3072 = max canvas width for some browsers
+  maxWidth: 3072, // only used with FillMode ='row'; 3072 = max canvas width for some browsers
   dedupe: false,
   padding: 0,
   transform: (_x, y) => y,
@@ -35,13 +35,10 @@ export const DEFAULT_OPTIONS: Options = {
 
 const read = (source: ImageSource): Promise<Jimp> => {
   // kind of weird type refinement required because of overloaded Jimp.read function
-  if ('path' in source) {
-    return Jimp.read(source.path);
-  } else if ('image' in source) {
-    return Jimp.read(source.image);
-  } else {
-    return Jimp.read(source.buffer);
-  }
+  if ('path' in source) return Jimp.read(source.path);
+  if ('image' in source) return Jimp.read(source.image);
+  
+  return Jimp.read(source.buffer);
 } 
 
 type Spec = {
@@ -52,24 +49,29 @@ type Spec = {
 };
 
 const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spec[] => {
+  const {padding, fillMode, dedupe, maxWidth} = options;
+  
   const specs: Spec[] = [];
   const dupeHash: {[key: string]: Spec} = {} // only used of options.dedupe = true
-  let offsetY = options.padding;
-  let offsetX = options.padding;
-  let maxHeightInRow = options.padding;
+  
+  let offsetY = padding;
+  let offsetX = padding;
+  let maxHeightInRow = padding;
 
   images.forEach(({image: baseImage, key}, i) => {
     const image = options.transform(key, baseImage);
     
-    if (image.getWidth() + (options.padding * 2) > options.maxWidth) {
-      image.resize(options.maxWidth - (options.padding * 2), Jimp.AUTO);
+    // if this image w/ padding is wider than the total max width, size it down
+    if (image.getWidth() + (padding * 2) > maxWidth) {
+      image.resize(maxWidth - (padding * 2), Jimp.AUTO);
     }
 
     const width = image.getWidth();
     const height = image.getHeight();
     const imageHash = image.hash();
 
-    if (options.dedupe && dupeHash[imageHash]) {
+    // if this image is a duplicate, use previous spec and return
+    if (dedupe && dupeHash[imageHash]) {
       const dupeSpec = dupeHash[imageHash];
       
       specs.push({...dupeSpec, key});
@@ -77,15 +79,15 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     }
 
     // check if next image will overflow the row, if so, start new row
-    if (options.fillMode === 'row' && offsetX + width > options.maxWidth) {
-      offsetX = options.padding;
-      offsetY += maxHeightInRow + options.padding;
-      maxHeightInRow = options.padding;
+    if (fillMode === 'row' && offsetX + width + padding > maxWidth) {
+      offsetX = padding;
+      offsetY += maxHeightInRow + padding;
+      maxHeightInRow = padding;
     }
     
     // track the largest image in the row
-    if (options.fillMode === 'row' && (height + options.padding) > maxHeightInRow) {
-      maxHeightInRow = height + options.padding;
+    if (fillMode === 'row' && height + padding > maxHeightInRow) {
+      maxHeightInRow = height + padding;
     }
 
     const spec: Spec = {
@@ -97,16 +99,17 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
 
     specs.push(spec);
     
-    if (options.fillMode === 'vertical') {
-      offsetY += height + options.padding;
+    // update offsets for next image
+    if (fillMode === 'vertical') {
+      offsetY += height + padding;
     }
       
-    if (options.fillMode === 'horizontal' || options.fillMode === 'row') {
-      offsetX += width + (options.padding * 2);
+    if (fillMode === 'horizontal' || fillMode === 'row') {
+      offsetX += width + (padding * 2);
     }
 
     // add hash to map if tracking dupes
-    if (options.dedupe) {
+    if (dedupe) {
       dupeHash[imageHash] = spec;
     }
   });
