@@ -56,16 +56,10 @@ function createSprite(sources: ImageSource[], partialOptions: Partial<Options>):
 type ImageSource 
   = {key: string, path: string} 
   | {key: string, image: Jimp} 
-  | {key: string, buffer: Buffer};
-
-enum FillMode {
-  Vertical = 'vertical',
-  Horizontal = 'horizontal', 
-  Row = 'row'
-}
+  | {key: string, buffer: Buffer}
 
 type Options = {
-  fillMode: FillMode;
+  fillMode: 'vertical' | 'horizontal' | 'row';
   maxWidth: number;
   dedupe: boolean;
   padding: number;

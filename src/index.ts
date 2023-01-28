@@ -5,14 +5,8 @@ export type ImageSource
   | {key: string, image: Jimp} 
   | {key: string, buffer: Buffer};
 
-export enum FillMode {
-  Vertical = 'vertical',
-  Horizontal = 'horizontal', 
-  Row = 'row'
-}
-
 export type Options = {
-  fillMode: FillMode;
+  fillMode: 'vertical' | 'horizontal' | 'row';
   maxWidth: number;
   dedupe: boolean;
   padding: number;
@@ -32,8 +26,8 @@ export type Sprite = {
 }
 
 export const DEFAULT_OPTIONS: Options = {
-  fillMode: FillMode.Vertical,
-  maxWidth: 3072, // only used with FillMode.Row; 3072 = max canvas width for some browsers
+  fillMode: 'vertical',
+  maxWidth: 3072, // only used with 'row'; 3072 = max canvas width for some browsers
   dedupe: false,
   padding: 0,
   transform: (_x, y) => y,
@@ -83,14 +77,14 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     }
 
     // check if next image will overflow the row, if so, start new row
-    if (options.fillMode === FillMode.Row && offsetX + width > options.maxWidth) {
+    if (options.fillMode === 'row' && offsetX + width > options.maxWidth) {
       offsetX = options.padding;
       offsetY += maxHeightInRow + options.padding;
       maxHeightInRow = options.padding;
     }
     
     // track the largest image in the row
-    if (options.fillMode === FillMode.Row && (height + options.padding) > maxHeightInRow) {
+    if (options.fillMode === 'row' && (height + options.padding) > maxHeightInRow) {
       maxHeightInRow = height + options.padding;
     }
 
@@ -103,11 +97,11 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
 
     specs.push(spec);
     
-    if (options.fillMode === FillMode.Vertical) {
+    if (options.fillMode === 'vertical') {
       offsetY += height + options.padding;
     }
       
-    if (options.fillMode === FillMode.Horizontal || options.fillMode === FillMode.Row) {
+    if (options.fillMode === 'horizontal' || options.fillMode === 'row') {
       offsetX += width + (options.padding * 2);
     }
 
