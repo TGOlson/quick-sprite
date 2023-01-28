@@ -40,7 +40,7 @@ Call to `createSprite` can receive `Options` as a second arguement. Default opti
 
 ```ts
 const DEFAULT_OPTIONS: Options = {
-  fillMode: FillMode.Vertical,
+  fillMode: 'vertical',
   maxWidth: 3072, // only used with FillMode.Row; 3072 = max canvas width for some browsers
   dedupe: false,
   padding: 0,
