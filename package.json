@@ -8,8 +8,7 @@
     "build": "npx tsc",
     "watch": "npx tsc --watch",
     "test": "npx ts-node test/index.ts",
-    "clean": "rm -rf dist/",
-    "publish": "./publish"
+    "clean": "rm -rf dist/"
   },
   "author": "Tyler Olson <tydotg@gmail.com>",
   "repository": "TGOlson/quick-sprite",
