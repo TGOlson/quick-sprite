@@ -58,7 +58,7 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
   let offsetX = padding;
   let maxHeightInRow = padding;
 
-  images.forEach(({image: baseImage, key}, i) => {
+  images.forEach(({image: baseImage, key}) => {
     const image = options.transform(key, baseImage);
     
     // if this image w/ padding is wider than the total max width, size it down
@@ -71,9 +71,8 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     const imageHash = image.hash();
 
     // if this image is a duplicate, use previous spec and return
-    if (dedupe && dupeHash[imageHash]) {
-      const dupeSpec = dupeHash[imageHash];
-      
+    const dupeSpec = dupeHash[imageHash]
+    if (dedupe && dupeSpec) {
       specs.push({...dupeSpec, key});
       return;
     }
