@@ -11,6 +11,7 @@ export type Options = {
   dedupe: boolean;
   padding: number;
   transform: (key: string, image: Jimp) => Jimp,
+  debug: boolean,
 }
 
 export type Sprite = {
@@ -31,6 +32,7 @@ export const DEFAULT_OPTIONS: Options = {
   dedupe: false,
   padding: 0,
   transform: (_x, y) => y,
+  debug: false,
 }
 
 const read = (source: ImageSource): Promise<Jimp> => {
@@ -48,11 +50,13 @@ type Spec = {
   y: number,
 };
 
+const debug = (opts: Options, msg: string) => opts.debug ? console.log(`[DEBUG/quick-sprite]: ${msg}`) : null;
+
 const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spec[] => {
   const {padding, fillMode, dedupe, maxWidth} = options;
   
   const specs: Spec[] = [];
-  const dupeHash: {[key: string]: Spec} = {} // only used of options.dedupe = true
+  const dupeHash: {[key: string]: Spec} = {} // only used if options.dedupe = true
   
   let offsetY = padding;
   let offsetX = padding;
@@ -123,22 +127,27 @@ export async function createSprite(sources: ImageSource[], partialOptions: Parti
     return read(source).then(image => ({key: source.key, image}));
   });
 
+  debug(options, 'reading image sources...');
   const images = await Promise.all(imagesPromises);
-
+  
+  debug(options, 'building specs...');
   const specs = buildSpecs(images, options);
-
+  
   const totalWidth = Math.max(...specs.map(({x, image}) => x + image.getWidth())) + options.padding;
   const totalHeight = Math.max(...specs.map(({y, image}) => y + image.getHeight())) + options.padding;
-
+  
   const image = new Jimp(totalWidth, totalHeight, '#ffffff');
-
+  
+  debug(options, 'generating composite image...');
   specs.forEach(spec => {
     image.composite(spec.image, spec.x, spec.y);
   });
-
+  
+  debug(options, 'creating image mapping...');
   const mapping = specs.reduce((map, {key, x, y, image}) => {
     return {...map, [key]: {x, y, width: image.getWidth(), height: image.getHeight()}};
   }, {});
-
+  
+  debug(options, 'done!');
   return {image, mapping};
 }

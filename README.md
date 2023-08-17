@@ -17,7 +17,7 @@ Note: the only external dependency for this library is `Jimp`, which in turn has
 
 ### usage 
 
-`createSprite` is the only exported method from this library. Generate sprite images by providing this method a list of input sources and an optional set of options. 
+`createSprite` is the only exported method from this library. Generate sprite images by providing this method a list of input sources and an (optional) set of options. 
 
 ```ts
 import {createSprite} from 'quick-sprite';
@@ -39,12 +39,13 @@ createSprite(sources).then(({image, mapping}: Sprite) => {
 Call to `createSprite` can receive `Options` as a second arguement. Default options will work for most use cases, but can be modified for additional flexibility. 
 
 ```ts
-const DEFAULT_OPTIONS: Options = {
+export const DEFAULT_OPTIONS: Options = {
   fillMode: 'vertical',
   maxWidth: 3072, // only used with FillMode ='row'; 3072 = max canvas width for some browsers
   dedupe: false,
   padding: 0,
   transform: (_x, y) => y,
+  debug: false,
 }
 ```
 
@@ -58,12 +59,13 @@ type ImageSource
   | {key: string, image: Jimp} 
   | {key: string, buffer: Buffer}
 
-type Options = {
+export type Options = {
   fillMode: 'vertical' | 'horizontal' | 'row';
   maxWidth: number;
   dedupe: boolean;
   padding: number;
   transform: (key: string, image: Jimp) => Jimp,
+  debug: boolean,
 }
 
 type Sprite = {
