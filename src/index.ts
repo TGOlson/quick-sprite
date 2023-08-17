@@ -1,4 +1,4 @@
-import Jimp from 'jimp/es';
+import Jimp from 'jimp';
 
 export type ImageSource 
   = {key: string, path: string} 

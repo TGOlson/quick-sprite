@@ -18,6 +18,9 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "jimp": "^0.16.2"
+    "jimp": "^0.22.10"
+  },
+  "overrides": {
+    "xml2js": "^0.5.0"
   }
 }

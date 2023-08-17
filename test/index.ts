@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Jimp from 'jimp/es';
+import Jimp from 'jimp';
 import path from 'path';
 
 import {createSprite} from '../src';

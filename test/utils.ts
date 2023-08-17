@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Jimp from "jimp/es";
+import Jimp from "jimp";
 
 export const testAsync = (label: string, cb: () => Promise<void>): void => {
   cb()
