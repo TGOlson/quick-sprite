@@ -91,7 +91,7 @@ testAsync('Generator can dedupe input images', async () => {
     {...ATL, key: 'ATL_3'}, 
   ];
 
-  const {image, mapping} = await createSprite(paths, {fillMode: 'row', maxWidth: 300, dedupe: true});
+  const {image, mapping} = await createSprite(paths, {fillMode: 'row', maxWidth: 300, dedupe: {diffPercent: 0.1}});
 
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -101,7 +101,7 @@ testAsync('Generator can dedupe input images', async () => {
     BOS_2: { x: 125, y: 0, width: 125, height: 125 },
     CHA: { x: 75, y: 125, width: 125, height: 125 },
     CHI: { x: 0, y: 250, width: 125, height: 125 },
-    MIN_large: { x: 0, y: 125, width: 75, height: 75 },
+    MIN_large: { x: 0, y: 375, width: 200, height: 200 },
     ATL_3: { x: 0, y: 0, width: 125, height: 125 }
   });
 

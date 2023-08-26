@@ -62,7 +62,7 @@ type ImageSource
 export type Options = {
   fillMode: 'vertical' | 'horizontal' | 'row';
   maxWidth: number;
-  dedupe: boolean;
+  dedupe: false | {diffPercent: number};
   padding: number;
   transform: (key: string, image: Jimp) => Jimp,
   debug: boolean,

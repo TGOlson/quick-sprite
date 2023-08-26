@@ -8,7 +8,7 @@ export type ImageSource
 export type Options = {
   fillMode: 'vertical' | 'horizontal' | 'row';
   maxWidth: number;
-  dedupe: boolean;
+  dedupe: false | {diffPercent: number};
   padding: number;
   transform: (key: string, image: Jimp) => Jimp,
   debug: boolean,
@@ -56,7 +56,7 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
   const {padding, fillMode, dedupe, maxWidth} = options;
   
   const specs: Spec[] = [];
-  const dupeHash: {[key: string]: Spec} = {} // only used if options.dedupe = true
+  const dupeHash: {[key: string]: Spec[]} = {} // only used if options.dedupe = true
   
   let offsetY = padding;
   let offsetX = padding;
@@ -74,11 +74,19 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     const height = image.getHeight();
     const imageHash = image.hash();
 
-    // if this image is a duplicate, use previous spec and return
-    const dupeSpec = dupeHash[imageHash]
-    if (dedupe && dupeSpec) {
-      specs.push({...dupeSpec, key});
-      return;
+    if (dedupe) {
+      const dupeSpecs = dupeHash[imageHash] || [];
+
+      // just checking the hash isn't enough as sometimes we'll get collisions (on small images especially)
+      // if hashes are the same, then do an actual diff to determine if this is a dupe
+      const dupeSpec = dupeSpecs.find(({image: dupeImage}) => Jimp.diff(image, dupeImage).percent < dedupe.diffPercent);
+
+      if (dupeSpec) {
+        specs.push({...dupeSpec, key});
+        return;
+      }
+
+      // if no dupe found, just continue on...
     }
 
     // check if next image will overflow the row, if so, start new row
@@ -113,7 +121,8 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
 
     // add hash to map if tracking dupes
     if (dedupe) {
-      dupeHash[imageHash] = spec;
+      dupeHash[imageHash] = dupeHash[imageHash] || []
+      dupeHash[imageHash]?.push(spec);
     }
   });
 
