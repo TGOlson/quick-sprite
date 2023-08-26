@@ -11,7 +11,10 @@
     "clean": "rm -rf dist/"
   },
   "author": "Tyler Olson <tydotg@gmail.com>",
-  "repository": "TGOlson/quick-sprite",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TGOlson/quick-sprite.git"
+  },
   "license": "ISC",
   "devDependencies": {
     "ts-node": "^10.9.1",
