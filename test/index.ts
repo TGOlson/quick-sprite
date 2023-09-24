@@ -19,8 +19,22 @@ const MIN_SMALL = {key: 'MIN_small', path: imagePath('MIN_small.png')};
 
 const paths = [ATL, BOS, CHA, CHI];
 
+testAsync('Generator can create row sprites', async () => {
+  const {image, mapping} = await createSprite(paths, {maxWidth: 300});
+  
+  assert.deepEqual(mapping, {
+    ATL: { x: 0, y: 0, width: 125, height: 125 },
+    BOS: { x: 125, y: 0, width: 125, height: 125 },
+    CHA: { x: 0, y: 125, width: 125, height: 125 },
+    CHI: { x: 125, y: 125, width: 125, height: 125 }
+  });
+
+  const expected = await Jimp.read(expectedPath('fill_default.png'));
+  assertImagesEqual(image, expected);
+});
+
 testAsync('Generator can create vertical sprites', async () => {
-  const {image, mapping} = await createSprite(paths)
+  const {image, mapping} = await createSprite(paths, {fillMode: 'vertical'})
   
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -44,20 +58,6 @@ testAsync('Generator can create horizontal sprites', async () => {
   });
 
   const expected = await Jimp.read(expectedPath('horizontal_default.png'));
-  assertImagesEqual(image, expected);
-});
-
-testAsync('Generator can create row sprites', async () => {
-  const {image, mapping} = await createSprite(paths, {fillMode: 'row', maxWidth: 300});
-  
-  assert.deepEqual(mapping, {
-    ATL: { x: 0, y: 0, width: 125, height: 125 },
-    BOS: { x: 125, y: 0, width: 125, height: 125 },
-    CHA: { x: 0, y: 125, width: 125, height: 125 },
-    CHI: { x: 125, y: 125, width: 125, height: 125 }
-  });
-
-  const expected = await Jimp.read(expectedPath('fill_default.png'));
   assertImagesEqual(image, expected);
 });
 
@@ -111,7 +111,7 @@ testAsync('Generator can dedupe input images', async () => {
 
 testAsync('Generator can transform images while making sprite', async () => {
   const transform = (_key: string, image: Jimp) => image.resize(50,50).greyscale();
-  const {image, mapping} = await createSprite(paths, {transform});
+  const {image, mapping} = await createSprite(paths, {transform, fillMode: 'vertical'});
 
   image.write(outputPath('test6.png'));
   
@@ -123,45 +123,5 @@ testAsync('Generator can transform images while making sprite', async () => {
   });
 
   const expected = await Jimp.read(expectedPath('vertical_transform.png'));
-  assertImagesEqual(image, expected);
-});
-
-testAsync('Generator can add padding', async () => {
-  const paths = [
-    {key: 'red_1', path: imagePath('red.png')},
-    {key: 'red_2', path: imagePath('red.png')},
-    {key: 'red_3', path: imagePath('red.png')},
-    {key: 'red_4', path: imagePath('red.png')},
-  ]
-  const {image, mapping} = await createSprite(paths, {fillMode: 'row', maxWidth: 300, padding: 20});
-
-  assert.deepEqual(mapping, {
-    red_1: { x: 20, y: 20, width: 100, height: 100 },
-    red_2: { x: 160, y: 20, width: 100, height: 100 },
-    red_3: { x: 20, y: 160, width: 100, height: 100 },
-    red_4: { x: 160, y: 160, width: 100, height: 100 }
-  });
-
-  const expected = await Jimp.read(expectedPath('fill_padding.png'));
-  assertImagesEqual(image, expected);
-});
-
-testAsync('Generator will resize if image is greater than max width', async () => {
-  const paths = [
-    {key: 'red_1', path: imagePath('red.png')},
-    {key: 'red_2', path: imagePath('red.png')},
-    {key: 'red_3', path: imagePath('red.png')},
-    {key: 'red_4', path: imagePath('red.png')},
-  ]
-  const {image, mapping} = await createSprite(paths, {fillMode: 'row', maxWidth: 50, padding: 10});
-
-  assert.deepEqual(mapping, {
-    red_1: { x: 10, y: 10, width: 30, height: 30 },
-    red_2: { x: 10, y: 60, width: 30, height: 30 },
-    red_3: { x: 10, y: 110, width: 30, height: 30 },
-    red_4: { x: 10, y: 160, width: 30, height: 30 }
-  });
-
-  const expected = await Jimp.read(expectedPath('fill_resize.png'));
   assertImagesEqual(image, expected);
 });

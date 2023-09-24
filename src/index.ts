@@ -6,10 +6,9 @@ export type ImageSource
   | {key: string, buffer: Buffer};
 
 export type Options = {
-  fillMode: 'vertical' | 'horizontal' | 'row';
+  fillMode: 'row' | 'vertical' | 'horizontal';
   maxWidth: number;
   dedupe: false | {diffPercent: number};
-  padding: number;
   transform: (key: string, image: Jimp) => Jimp,
   debug: boolean,
 }
@@ -27,10 +26,14 @@ export type Sprite = {
 }
 
 export const DEFAULT_OPTIONS: Options = {
-  fillMode: 'vertical',
-  maxWidth: 3072, // only used with FillMode ='row'; 3072 = max canvas width for some browsers
+  fillMode: 'row',
+  
+  // Rough stats on max texture size support
+  // > 99.9% of devices support 4096x4096
+  // ~80% of devices support 8192x8192
+  // ~70% of devices support 16384x16384
+  maxWidth: 4096, // Only used with fillMode ='row';
   dedupe: false,
-  padding: 0,
   transform: (_x, y) => y,
   debug: false,
 }
@@ -53,22 +56,23 @@ type Spec = {
 const debug = (opts: Options, msg: string) => opts.debug ? console.log(`[DEBUG/quick-sprite]: ${msg}`) : null;
 
 const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spec[] => {
-  const {padding, fillMode, dedupe, maxWidth} = options;
+  const {fillMode, dedupe, maxWidth} = options;
   
   const specs: Spec[] = [];
   const dupeHash: {[key: string]: Spec[]} = {} // only used if options.dedupe = true
   
-  let offsetY = padding;
-  let offsetX = padding;
-  let maxHeightInRow = padding;
+  let offsetY = 0;
+  let offsetX = 0;
+  let maxHeightInRow = 0;
 
   images.forEach(({image: baseImage, key}) => {
     const image = options.transform(key, baseImage);
     
     // if this image w/ padding is wider than the total max width, size it down
-    if (image.getWidth() + (padding * 2) > maxWidth) {
-      image.resize(maxWidth - (padding * 2), Jimp.AUTO);
-    }
+    // TODO: actually just skip this image
+    // if (image.getWidth() > maxWidth) {
+    //   image.resize(maxWidth, Jimp.AUTO);
+    // }
 
     const width = image.getWidth();
     const height = image.getHeight();
@@ -90,16 +94,15 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     }
 
     // check if next image will overflow the row, if so, start new row
-    if (fillMode === 'row' && offsetX + width + padding > maxWidth) {
-      offsetX = padding;
-      offsetY += maxHeightInRow + padding;
-      maxHeightInRow = padding;
+    // TODO: should probably check and do something if horizontal fill mode overflows
+    if (fillMode === 'row' && offsetX + width > maxWidth) {
+      offsetX = 0;
+      offsetY += maxHeightInRow;
+      maxHeightInRow = 0;
     }
     
     // track the largest image in the row
-    if (fillMode === 'row' && height + padding > maxHeightInRow) {
-      maxHeightInRow = height + padding;
-    }
+    if (fillMode === 'row') maxHeightInRow = Math.max(maxHeightInRow, height);
 
     const spec: Spec = {
       key,
@@ -111,13 +114,8 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     specs.push(spec);
     
     // update offsets for next image
-    if (fillMode === 'vertical') {
-      offsetY += height + padding;
-    }
-      
-    if (fillMode === 'horizontal' || fillMode === 'row') {
-      offsetX += width + (padding * 2);
-    }
+    if (fillMode === 'vertical') offsetY += height;
+    if (fillMode === 'horizontal' || fillMode === 'row') offsetX += width;
 
     // add hash to map if tracking dupes
     if (dedupe) {
@@ -132,18 +130,16 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
 export async function createSprite(sources: ImageSource[], partialOptions: Partial<Options> = DEFAULT_OPTIONS): Promise<Sprite> {
   const options = {...DEFAULT_OPTIONS, ...partialOptions};
 
-  const imagesPromises = sources.map((source) => {
-    return read(source).then(image => ({key: source.key, image}));
-  });
-
   debug(options, 'reading image sources...');
-  const images = await Promise.all(imagesPromises);
+  const images = await Promise.all(sources.map((source) => {
+    return read(source).then(image => ({key: source.key, image}));
+  }));
   
   debug(options, 'building specs...');
   const specs = buildSpecs(images, options);
   
-  const totalWidth = Math.max(...specs.map(({x, image}) => x + image.getWidth())) + options.padding;
-  const totalHeight = Math.max(...specs.map(({y, image}) => y + image.getHeight())) + options.padding;
+  const totalWidth = Math.max(...specs.map(({x, image}) => x + image.getWidth()));
+  const totalHeight = Math.max(...specs.map(({y, image}) => y + image.getHeight()));
   
   const image = new Jimp(totalWidth, totalHeight, '#ffffff');
   
