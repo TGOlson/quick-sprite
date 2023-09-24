@@ -20,7 +20,7 @@ const MIN_SMALL = {key: 'MIN_small', path: imagePath('MIN_small.png')};
 const paths = [ATL, BOS, CHA, CHI];
 
 testAsync('Generator can create row sprites', async () => {
-  const {image, mapping} = await createSprite(paths, {maxWidth: 300});
+  const {image, mapping} = await createSprite(paths, {fillMode: {type: 'row', maxWidth: 300}});
   
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -34,7 +34,7 @@ testAsync('Generator can create row sprites', async () => {
 });
 
 testAsync('Generator can create vertical sprites', async () => {
-  const {image, mapping} = await createSprite(paths, {fillMode: 'vertical'})
+  const {image, mapping} = await createSprite(paths, {fillMode: {type: 'vertical'}})
   
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -48,7 +48,7 @@ testAsync('Generator can create vertical sprites', async () => {
 });
 
 testAsync('Generator can create horizontal sprites', async () => {
-  const {image, mapping} = await createSprite(paths, {fillMode: 'horizontal'});
+  const {image, mapping} = await createSprite(paths, {fillMode: {type: 'horizontal'}});
 
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -63,7 +63,7 @@ testAsync('Generator can create horizontal sprites', async () => {
 
 testAsync('Generator can create row sprites with different size images', async () => {
   const paths = [ATL, BOS, MIN_SMALL, CHA, CHI, MIN_LARGE];
-  const {image, mapping} = await createSprite(paths, {fillMode: 'row', maxWidth: 300});
+  const {image, mapping} = await createSprite(paths, {fillMode: {type: 'row', maxWidth: 300}});
   
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -91,7 +91,7 @@ testAsync('Generator can dedupe input images', async () => {
     {...ATL, key: 'ATL_3'}, 
   ];
 
-  const {image, mapping} = await createSprite(paths, {fillMode: 'row', maxWidth: 300, dedupe: {diffPercent: 0.1}});
+  const {image, mapping} = await createSprite(paths, {fillMode: {type: 'row', maxWidth: 300}, dedupe: {diffPercent: 0.1}});
 
   assert.deepEqual(mapping, {
     ATL: { x: 0, y: 0, width: 125, height: 125 },
@@ -111,7 +111,7 @@ testAsync('Generator can dedupe input images', async () => {
 
 testAsync('Generator can transform images while making sprite', async () => {
   const transform = (_key: string, image: Jimp) => image.resize(50,50).greyscale();
-  const {image, mapping} = await createSprite(paths, {transform, fillMode: 'vertical'});
+  const {image, mapping} = await createSprite(paths, {transform, fillMode: {type: 'vertical'}});
 
   image.write(outputPath('test6.png'));
   

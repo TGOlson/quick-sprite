@@ -12,12 +12,9 @@ You may also like this library if you are already using [`Jimp`](https://www.npm
 npm install quick-sprite --save
 ```
 
-Note: the only external dependency for this library is `Jimp`, which in turn has zero native dependencies. Most image processing calls are passed through to `Jimp`, and the final return type includes a `Jimp` instance.
-
-
 ### usage 
 
-`createSprite` is the only exported method from this library. Generate sprite images by providing this method a list of input sources and an (optional) set of options. 
+`createSprite` is the only exported method from this library. Generate sprite images by providing this method a list of input sources.
 
 ```ts
 import {createSprite} from 'quick-sprite';
@@ -29,21 +26,18 @@ const sources: ImageSource[] = [
 ];
 
 createSprite(sources).then(({image, mapping}: Sprite) => {
-  // do something with `mapping`
   image.write('<output-path>');
 });
 ```
 
 ### options
 
-Call to `createSprite` can receive `Options` as a second arguement. Default options will work for most use cases, but can be modified for additional flexibility. 
+Calls to `createSprite` can receive `Options` as a second arguement. Default options will work for most use cases, but can be modified for additional flexibility. 
 
 ```ts
-export const DEFAULT_OPTIONS: Options = {
-  fillMode: 'vertical',
-  maxWidth: 3072, // only used with FillMode ='row'; 3072 = max canvas width for some browsers
+const DEFAULT_OPTIONS: Options = {
+  fillMode: {type: 'row', maxWidth: 4096},
   dedupe: false,
-  padding: 0,
   transform: (_x, y) => y,
   debug: false,
 }
@@ -59,11 +53,9 @@ type ImageSource
   | {key: string, image: Jimp} 
   | {key: string, buffer: Buffer}
 
-export type Options = {
-  fillMode: 'vertical' | 'horizontal' | 'row';
-  maxWidth: number;
+type Options = {
+  fillMode: {type: 'row', maxWidth: number} | {type: 'vertical'} | {type: 'horizontal'};
   dedupe: false | {diffPercent: number};
-  padding: number;
   transform: (key: string, image: Jimp) => Jimp,
   debug: boolean,
 }
@@ -83,15 +75,15 @@ type Sprite = {
 
 ### advanced usage
 
-Most advanced usage will involve using the `transform` options, or modifying the resulting `Jimp` instance. 
+For more advanced usage, set the `transform` option, or modify the returned `Jimp` instance. 
 
-For example, images can be resized by using `Options.transform`: 
+eg. resize images by using `Options.transform`: 
 
 ```
 transform: (_key, image) => image.resize(width, height)
 ```
 
-Or images can be made black and white by modifying the resulting `Sprite.image`: 
+eg. make image black and white:
 
 ```
 createSprite(...).then(({image}) => image.greyscale())

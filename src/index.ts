@@ -6,8 +6,7 @@ export type ImageSource
   | {key: string, buffer: Buffer};
 
 export type Options = {
-  fillMode: 'row' | 'vertical' | 'horizontal';
-  maxWidth: number;
+  fillMode: {type: 'row', maxWidth: number} | {type: 'vertical'} | {type: 'horizontal'};
   dedupe: false | {diffPercent: number};
   transform: (key: string, image: Jimp) => Jimp,
   debug: boolean,
@@ -26,13 +25,11 @@ export type Sprite = {
 }
 
 export const DEFAULT_OPTIONS: Options = {
-  fillMode: 'row',
-  
   // Rough stats on max texture size support
   // > 99.9% of devices support 4096x4096
   // ~80% of devices support 8192x8192
   // ~70% of devices support 16384x16384
-  maxWidth: 4096, // Only used with fillMode ='row';
+  fillMode: {type: 'row', maxWidth: 4096},
   dedupe: false,
   transform: (_x, y) => y,
   debug: false,
@@ -56,7 +53,7 @@ type Spec = {
 const debug = (opts: Options, msg: string) => opts.debug ? console.log(`[DEBUG/quick-sprite]: ${msg}`) : null;
 
 const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spec[] => {
-  const {fillMode, dedupe, maxWidth} = options;
+  const {fillMode, dedupe} = options;
   
   const specs: Spec[] = [];
   const dupeHash: {[key: string]: Spec[]} = {} // only used if options.dedupe = true
@@ -67,12 +64,6 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
 
   images.forEach(({image: baseImage, key}) => {
     const image = options.transform(key, baseImage);
-    
-    // if this image w/ padding is wider than the total max width, size it down
-    // TODO: actually just skip this image
-    // if (image.getWidth() > maxWidth) {
-    //   image.resize(maxWidth, Jimp.AUTO);
-    // }
 
     const width = image.getWidth();
     const height = image.getHeight();
@@ -94,15 +85,14 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     }
 
     // check if next image will overflow the row, if so, start new row
-    // TODO: should probably check and do something if horizontal fill mode overflows
-    if (fillMode === 'row' && offsetX + width > maxWidth) {
+    if (fillMode.type === 'row' && offsetX + width > fillMode.maxWidth) {
       offsetX = 0;
       offsetY += maxHeightInRow;
       maxHeightInRow = 0;
     }
     
     // track the largest image in the row
-    if (fillMode === 'row') maxHeightInRow = Math.max(maxHeightInRow, height);
+    if (fillMode.type === 'row') maxHeightInRow = Math.max(maxHeightInRow, height);
 
     const spec: Spec = {
       key,
@@ -114,8 +104,8 @@ const buildSpecs = (images: {key: string, image: Jimp}[], options: Options): Spe
     specs.push(spec);
     
     // update offsets for next image
-    if (fillMode === 'vertical') offsetY += height;
-    if (fillMode === 'horizontal' || fillMode === 'row') offsetX += width;
+    if (fillMode.type === 'vertical') offsetY += height;
+    if (fillMode.type === 'horizontal' || fillMode.type === 'row') offsetX += width;
 
     // add hash to map if tracking dupes
     if (dedupe) {
